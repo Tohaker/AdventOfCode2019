@@ -1,11 +1,50 @@
 def read_wire_paths():
-    with open('test_input.txt', 'r') as file:
+    with open('input.txt', 'r') as file:
         lines = [line.rstrip('\n') for line in file]
 
     w1 = lines[0].split(',')
     w2 = lines[1].split(',')
 
     return w1, w2
+
+
+def calculate_points(wire):
+    wire_points = []
+
+    x = 0
+    y = 0
+
+    for j, command in enumerate(wire):
+        direction = command[:1]
+        distance = int(command[1:])
+
+        for i in range(distance + 1):
+            if direction == 'U':
+                wire_points.append({'coord': [x, y + i], 'command': j, 'completion': i})
+            elif direction == 'R':
+                wire_points.append({'coord': [x + i, y], 'command': j, 'completion': i})
+            elif direction == 'L':
+                wire_points.append({'coord': [x - i, y], 'command': j, 'completion': i})
+            else:
+                wire_points.append({'coord': [x, y - i], 'command': j, 'completion': i})
+
+        # Get the final X,Y coordinates from this command.
+        x = wire_points[len(wire_points) - 1]['coord'][0]
+        y = wire_points[len(wire_points) - 1]['coord'][1]
+
+    return wire_points
+
+
+def calculate_intercepts(w1, w2):
+    intercepts = []
+
+    for point_1 in w1:
+        for point_2 in w2:
+            if point_1['coord'][0] == point_2['coord'][0] and point_1['coord'][1] == point_2['coord'][1]:
+                print('Found intercept: ' + str(point_1['coord'][0]) + ' , ' + str(point_1['coord'][1]))
+                intercepts.append([point_1, point_2])
+
+    return intercepts
 
 
 # We should calculate all the points at which each line covers.
@@ -17,61 +56,16 @@ def part_one():
     x = 0
     y = 0
 
-    wire_1_points = []
-    wire_2_points = []
+    wire_1_points = calculate_points(wire_1)
+    wire_2_points = calculate_points(wire_2)
 
-    for command in wire_1:
-        direction = command[:1]
-        distance = int(command[1:])
-
-        for i in range(distance + 1):
-            if direction == 'U':
-                wire_1_points.append([x, y + i])
-            elif direction == 'R':
-                wire_1_points.append([x + i, y])
-            elif direction == 'L':
-                wire_1_points.append([x - i, y])
-            else:
-                wire_1_points.append([x, y - i])
-
-        # Get the final X,Y coordinates from this command.
-        x = wire_1_points[len(wire_1_points) - 1][0]
-        y = wire_1_points[len(wire_1_points) - 1][1]
-
-    x = 0
-    y = 0
-
-    for command in wire_2:
-        direction = command[:1]
-        distance = int(command[1:])
-
-        for i in range(distance + 1):
-            if direction == 'U':
-                wire_2_points.append([x, y + i])
-            elif direction == 'R':
-                wire_2_points.append([x + i, y])
-            elif direction == 'L':
-                wire_2_points.append([x - i, y])
-            else:
-                wire_2_points.append([x, y - i])
-
-        # Get the final X,Y coordinates from this command.
-        x = wire_2_points[len(wire_2_points) - 1][0]
-        y = wire_2_points[len(wire_2_points) - 1][1]
-
-    intercepts = []
-
-    for point_1 in wire_1_points:
-        for point_2 in wire_2_points:
-            if point_1[0] == point_2[0] and point_1[1] == point_2[1]:
-                print('Found intercept: ' + str(point_1[0]) + ' , ' + str(point_1[1]))
-                intercepts.append(point_1)
+    intercepts = calculate_intercepts(wire_1_points, wire_2_points)
 
     lowest = 10000000000000
 
     for intercept in intercepts:
-        x = abs(intercept[0])
-        y = abs(intercept[1])
+        x = abs(intercept[0]['coord'][0])
+        y = abs(intercept[0]['coord'][1])
 
         manhattan_distance = x + y
         if manhattan_distance != 0 and manhattan_distance < lowest:
@@ -87,6 +81,43 @@ def part_one():
 def part_two():
     wire_1, wire_2 = read_wire_paths()
 
+    wire_1_points = calculate_points(wire_1)
+    wire_2_points = calculate_points(wire_2)
+
+    intercepts = calculate_intercepts(wire_1_points, wire_2_points)
+
+    print('Found {} intercepts'.format(len(intercepts)))
+
+    lowest = 1000000000000
+
+    # Here we get the route up until this intersection
+    for intercept in intercepts:
+        route_wire_1 = wire_1[:intercept[0]['command'] + 1]
+        route_wire_2 = wire_2[:intercept[1]['command'] + 1]
+
+        wire_1_total = 0
+        wire_2_total = 0
+
+        for i, command in enumerate(route_wire_1):
+            if i < len(route_wire_1) - 1:
+                wire_1_total += int(command[1:])
+            else:
+                wire_1_total += int(intercept[0]['completion'])
+
+        for i, command in enumerate(route_wire_2):
+            if i < len(route_wire_2) - 1:
+                wire_2_total += int(command[1:])
+            else:
+                wire_2_total += int(intercept[1]['completion'])
+
+        signal_delay = wire_1_total + wire_2_total
+
+        print('Signal Delay: {}'.format(signal_delay))
+
+        if signal_delay < lowest and signal_delay != 0:
+            lowest = signal_delay
+
+    return lowest
 
 if __name__ == '__main__':
-    print(part_one())
+    print(part_two())
