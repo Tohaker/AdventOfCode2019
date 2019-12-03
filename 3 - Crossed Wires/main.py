@@ -1,3 +1,6 @@
+import multiprocessing
+
+
 def read_wire_paths():
     with open('input.txt', 'r') as file:
         lines = [line.rstrip('\n') for line in file]
@@ -47,6 +50,22 @@ def calculate_intercepts(w1, w2):
     return intercepts
 
 
+def calculate_intercepts_multiprocess(w1, w2, return_list, process_number):
+    intercepts = return_list[process_number]
+
+    print('Thread {} started'.format(process_number))
+
+    for point_1 in w1:
+        for point_2 in w2:
+            if point_1['coord'][0] == point_2['coord'][0] and point_1['coord'][1] == point_2['coord'][1]:
+                print('Found intercept: ' + str(point_1['coord'][0]) + ' , ' + str(point_1['coord'][1]))
+                intercepts.append([point_1, point_2])
+
+    print('Thread {} returned'.format(process_number))
+
+    return intercepts
+
+
 # We should calculate all the points at which each line covers.
 # Then find the common points.
 # Then find the lowest Manhattan Distance (x + y)
@@ -58,6 +77,27 @@ def part_one():
 
     wire_1_points = calculate_points(wire_1)
     wire_2_points = calculate_points(wire_2)
+
+    # manager = multiprocessing.Manager()
+    # return_list = manager.list()
+    # jobs = []
+    #
+    # split_wire_points = []
+    # n = int(len(wire_2_points) / 4)
+    # for i in range(0, len(wire_2_points), n):
+    #     split_wire_points.append(wire_2_points[i:i + n])
+    #     return_list.append([])
+    #
+    # for i in range(len(split_wire_points)):
+    #     p = multiprocessing.Process(target=calculate_intercepts_multiprocess,
+    #                                 args=(wire_1_points, split_wire_points[i], return_list, i))
+    #     jobs.append(p)
+    #     p.start()
+    #
+    # for process in jobs:
+    #     process.join()
+    #
+    # intercepts = return_list
 
     intercepts = calculate_intercepts(wire_1_points, wire_2_points)
 
@@ -119,5 +159,6 @@ def part_two():
 
     return lowest
 
+
 if __name__ == '__main__':
-    print(part_two())
+    print(part_one())
