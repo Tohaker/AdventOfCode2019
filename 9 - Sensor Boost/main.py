@@ -47,8 +47,12 @@ def part_one(program, input):
                 n2 = program[loc]
 
         if instruction != 3 and instruction != 4 and instruction != 5 and instruction != 9:
-            location = program[op_position + 3]
-            download_more_ram(program, location)
+            if params[2] == 0 or params[2] == 1:
+                location = program[op_position + 3]
+                download_more_ram(program, location)
+            elif params[2] == 2:
+                location = relative_base + program[op_position + 3]
+                download_more_ram(program, location)
 
         if instruction == 1:
             program[location] = n1 + n2
@@ -57,7 +61,7 @@ def part_one(program, input):
             program[location] = n1 * n2
             op_position += 4
         elif instruction == 3:
-            program[n1] = input
+            program[relative_base + program[op_position + 1]] = input
             op_position += 2
         elif instruction == 4:
             output_list.append(n1)
@@ -93,3 +97,4 @@ def part_one(program, input):
 
 if __name__ == '__main__':
     print(part_one(read_input(), 1))
+    print(part_one(read_input(), 2))  # Part Two
