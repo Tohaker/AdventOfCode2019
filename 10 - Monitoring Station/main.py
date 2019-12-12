@@ -1,10 +1,9 @@
 import ast
 import math
-import numpy as np
 
 
 def read_input():
-    with open('test_input.txt', 'r') as file:
+    with open('input.txt', 'r') as file:
         return list([list(line.rstrip('\n')) for line in file])
 
 
@@ -65,34 +64,35 @@ def part_one():
     return largest, chosen
 
 
+def determine_distance_to_asteroid(a1, a2):
+    return math.sqrt(math.pow(a2['x'] - a1['x'], 2) + math.pow(a2['y'] - a1['y'], 2))
+
+
 def find_visible_asteroids(coords, base):
     base = ast.literal_eval(base)
-    visible = {}
-    angles = []
+    angles = {}
 
     for asteroid in coords:
         if asteroid['x'] == base['x'] and asteroid['y'] == base['y']:
             coords.remove(asteroid)
         else:
             angle = determine_angle_to_asteroid(base, asteroid)
-            if angle not in angles:
-                angles.append(angle)
-                visible[str(asteroid)] = angle
+            if angle in angles:
+                angles[angle].append(asteroid)
+            else:
+                angles[angle] = [asteroid]
 
-    return visible
+    for angle in angles.items():
+        closest = 1000000
+        for asteroid in angle[1]:
+            d = determine_distance_to_asteroid(base, asteroid)
+            if d < closest:
+                closest = d
+                closest_asteroid = asteroid
 
+        angles[angle[0]] = closest_asteroid
 
-def reorder_by_angle(visible):
-    positive = {}
-    negative = {}
-
-    for a, angle in visible.items():
-        if angle >= 0:
-            positive[a] = angle
-        if angle < 0:
-            negative[a] = angle
-
-    return positive, negative
+    return angles
 
 
 def part_two(base):
@@ -100,30 +100,16 @@ def part_two(base):
     order_of_elimination = []
 
     while len(coords) > 0:
-        v = {asteroid: angle for asteroid, angle in
-             sorted(find_visible_asteroids(coords, base).items(), key=lambda item: item[1])}
+        v = {angle: asteroid for angle, asteroid in
+             sorted(find_visible_asteroids(coords, base).items(), key=lambda item: item[0])}
 
-        for angle in np.arange(0, 360, 0.00001):
-            for asteroid, a in v.items():
-                if a == angle:
-                    coords.remove(asteroid)
-                    order_of_elimination.append(asteroid)
+        for a, asteroid in v.items():
+            coords.remove(asteroid)
+            order_of_elimination.append(asteroid)
 
-        # p, n = reorder_by_angle(v)
-        # for asteroid, angle in p.items():
-        #     asteroid = ast.literal_eval(asteroid)
-        #     print('Destroyed asteroid at {0}, {1} with angle {2}'.format(asteroid['x'], asteroid['y'], angle))
-        #     order_of_elimination.append(asteroid)
-        #     coords.remove(asteroid)
-        # for asteroid, angle in n.items():
-        #     asteroid = ast.literal_eval(asteroid)
-        #     print('Destroyed asteroid at {0}, {1} with angle {2}'.format(asteroid['x'], asteroid['y'], angle))
-        #     order_of_elimination.append(asteroid)
-        #     coords.remove(asteroid)
-
-    return order_of_elimination[200]
+    return order_of_elimination[199]['x'] * 100 + order_of_elimination[199]['y']
 
 
 if __name__ == '__main__':
     l, c = part_one()
-    print(part_two(c))
+    print('Answer: {}'.format(part_two(c)))
