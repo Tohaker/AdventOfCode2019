@@ -1,5 +1,8 @@
 import csv
+import itertools
+
 import matplotlib.pyplot as plt
+
 
 def read_input():
     with open('input.txt', 'r') as file:
@@ -95,17 +98,28 @@ def intcode_computer(program, input, op_position, relative_base):
 
     return program[op_position], op_position, relative_base
 
-def check_destroy_blocks(grid, coordinates):
+
+def check_destroy_blocks(grid, coordinates, joystick, paddle):
     if grid[coordinates] == 4:
         surrounding = [
-            coordinates + (1, 0),
-            coordinates + (0, 1),
-            coordinates + (-1, 0),
-            coordinates + (0, -1)
+            (coordinates[0] + 1, coordinates[1]),
+            (coordinates[0], coordinates[1] + 1),
+            (coordinates[0] - 1, coordinates[1]),
+            (coordinates[0], coordinates[1] - 1)
         ]
         for c in surrounding:
-            if c == 2:
-                grid.remove(c)
+            if c in grid and grid[c] == 2:
+                grid[c] = 0
+
+        if coordinates[0] > paddle[0]:
+            joystick = -1
+        elif coordinates[0] < paddle[0]:
+            joystick = 1
+        else:
+            joystick = 0
+
+    return joystick
+
 
 def part_one():
     program = read_input()
@@ -114,7 +128,6 @@ def part_one():
     relative_base = 0
 
     grid = {}
-    colours = ("blue", "black", "green", "yellow")
 
     while True:
         output, op_position, relative_base = intcode_computer(program, 0, op_position, relative_base)
@@ -123,25 +136,85 @@ def part_one():
 
         coordinates = (output[0], output[1])
         grid[coordinates] = output[2]
-        check_destroy_blocks(grid, coordinates)
 
-        # Plotting the game
-        walls = list(filter(lambda tile: tile == 1, grid.items()))
-        blocks = list(filter(lambda tile: tile == 2, grid.items()))
-        paddle = list(filter(lambda tile: tile == 3, grid.items()))
-        ball = list(filter(lambda tile: tile == 4, grid.items()))
+    return [(k, len(list(v))) for k, v in itertools.groupby(sorted(grid.values()))][2][1]
 
-        data = [walls, blocks, paddle, ball]
 
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1, axisbg="1.0")
+def plot_game(empty, walls, blocks, paddle, ball, fig, colours, ax):
+    ax.clear()
+    data = [empty, walls, blocks]
 
-        for data, colour in zip(data, colours):
-            x, y = data
-            ax.scatter(x, y, c=colour)
+    for data, colour in zip(data, colours):
+        x = []
+        y = []
+        for c in data:
+            x.append(c[0])
+            y.append(c[1])
+        ax.scatter(x, y, c=colour)
 
-        plt.show()
+    if 'paddle' in locals():
+        ax.scatter(paddle[0], paddle[1], c=colours[3])
+    if 'ball' in locals():
+        ax.scatter(ball[0], ball[1], c=colours[4])
+
+    fig.canvas.draw()
+
+
+def part_two():
+    program = read_input()
+    program[0] = 2  # Insert quarters
+
+    op_position = 0
+    relative_base = 0
+    joystick = 0
+
+    grid = {}
+
+    colours = ("white", "blue", "black", "green", "red")
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    fig.show()
+    fig.canvas.draw()
+
+    empty = []
+    walls = []
+    blocks = []
+    paddle = (0, 0)
+    ball = (0, 0)
+
+    while True:
+        output, op_position, relative_base = intcode_computer(program, joystick, op_position, relative_base)
+        if output == 99:
+            break
+
+        coordinates = (output[0], output[1])
+        if coordinates == (-1, 0):
+            score = output[2]
+        else:
+            grid[coordinates] = output[2]
+
+            # Plotting the game
+            value = output[2]
+            if value == 0:
+                empty.append(coordinates)
+            elif value == 1:
+                walls.append(coordinates)
+            elif value == 2:
+                blocks.append(coordinates)
+            elif value == 3:
+                paddle = coordinates
+            elif value == 4:
+                ball = coordinates
+
+            joystick = check_destroy_blocks(grid, coordinates, joystick, paddle)
+
+            if len(grid) >= 814:
+                plot_game(empty, walls, blocks, paddle, ball, fig, colours, ax)
+
+    return score
 
 
 if __name__ == '__main__':
     print(part_one())
+    print(part_two())
