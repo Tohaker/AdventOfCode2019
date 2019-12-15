@@ -61,9 +61,7 @@ def intcode_computer(program, input, op_position, relative_base):
             program[location] = n1 * n2
             op_position += 4
         elif instruction == 3:
-            location = relative_base + program[op_position + 1]
-            download_more_ram(program, location)
-            program[location] = input
+            program[program[op_position + 1]] = input
             op_position += 2
         elif instruction == 4:
             output_list.append(n1)
@@ -101,19 +99,9 @@ def intcode_computer(program, input, op_position, relative_base):
 
 def check_destroy_blocks(grid, coordinates, joystick, paddle):
     if grid[coordinates] == 4:
-        surrounding = [
-            (coordinates[0] + 1, coordinates[1]),
-            (coordinates[0], coordinates[1] + 1),
-            (coordinates[0] - 1, coordinates[1]),
-            (coordinates[0], coordinates[1] - 1)
-        ]
-        for c in surrounding:
-            if c in grid and grid[c] == 2:
-                grid[c] = 0
-
-        if coordinates[0] > paddle[0]:
+        if coordinates[0] < paddle[0]:
             joystick = -1
-        elif coordinates[0] < paddle[0]:
+        elif coordinates[0] > paddle[0]:
             joystick = 1
         else:
             joystick = 0
@@ -209,8 +197,8 @@ def part_two():
 
             joystick = check_destroy_blocks(grid, coordinates, joystick, paddle)
 
-            if len(grid) >= 814:
-                plot_game(empty, walls, blocks, paddle, ball, fig, colours, ax)
+            # if len(grid) >= 814:
+            #     plot_game(empty, walls, blocks, paddle, ball, fig, colours, ax)
 
     return score
 
