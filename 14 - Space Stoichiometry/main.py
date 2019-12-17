@@ -2,7 +2,7 @@ import math
 
 
 def read_input():
-    with open('test_input.txt', 'r') as file:
+    with open('input.txt', 'r') as file:
         output = []
         for line in file.readlines():
             equation = line.split('=>')
@@ -16,63 +16,29 @@ def read_input():
     return output
 
 
-def calculate_requirements(desired_result, desired_quantity, reactions, total_ore, waste):
-    requirements = list(filter(lambda r: r[1][1] == desired_result, reactions))[0]
-
-    if 'ORE' in requirements[0][0][1]:
-        reaction_quantity = int(requirements[0][0][0])
-        requirement_quantity = int(requirements[1][0])
-
-        # Check if we have enough waste to cover the quantity needed.
-        if requirements[1][1] in waste and waste[requirements[1][1]] >= desired_quantity:
-            waste[requirements[1][1]] -= desired_quantity
-            return total_ore, waste
-
-        # Check if we're producing more than we need. Put it into waste.
-        if requirement_quantity > desired_quantity:
-            if requirements[1][1] not in waste:
-                waste[requirements[1][1]] = reaction_quantity - desired_quantity
-            else:
-                waste[requirements[1][1]] += reaction_quantity - desired_quantity
-
-        if requirement_quantity < desired_quantity:
-            factor = math.ceil(desired_quantity / requirement_quantity)
-            new_ore = reaction_quantity * factor
-            return total_ore + new_ore, waste
-
-        return total_ore + reaction_quantity, waste
-
-    for r in requirements[0]:
-        reactions_needed = math.ceil(desired_quantity / int(r[0]))
-        desired_quantity = int(r[0]) * reactions_needed
-        desired_result = r[1]
-        total_ore, waste = calculate_requirements(desired_result, desired_quantity, reactions, total_ore, waste)
-
-    return total_ore, waste
-
-
-def calculate_requirements_2(reactions, desired_result, desired_quantity, total_ore, waste):
+def calculate_requirements(reactions, desired_result, desired_quantity, total_ore, waste):
     requirements = list(filter(lambda r: r[1][1] == desired_result, reactions))[0]
 
     result_quantity = int(requirements[1][0])
     factor = math.ceil((desired_quantity - waste[desired_result]) / result_quantity)
 
+    # Check if we have enough waste to cover the quantity needed.
+    if waste[desired_result] >= desired_quantity:
+        waste[desired_result] -= desired_quantity
+        return total_ore, waste
+
+    # Check if we're producing more than we need. Put it into waste.
+    amount_to_be_made = result_quantity * factor
+    if desired_quantity < amount_to_be_made:
+        waste[desired_result] += amount_to_be_made - desired_quantity
+
+    # Check if we used any waste, and remove it from the store.
+    if amount_to_be_made < desired_quantity:
+        waste[desired_result] -= (desired_quantity - amount_to_be_made)
+
     if 'ORE' in requirements[0][0][1]:
-        # Check if we're producing more than we need. Put it into waste.
-        amount_to_be_made = result_quantity * factor
-        if desired_quantity < amount_to_be_made:
-            waste[desired_result] += amount_to_be_made - desired_quantity
-
-        # Check if we used any waste, and remove it from the store.
-        if amount_to_be_made < desired_quantity:
-            waste[desired_result] = waste[desired_result] - (desired_quantity - amount_to_be_made)
-
-        # Check if we have enough waste to cover the quantity needed.
-        if desired_result in waste and waste[desired_result] >= desired_quantity:
-            waste[desired_result] -= desired_quantity
-        else:
-            reaction_quantity = int(requirements[0][0][0])
-            total_ore += reaction_quantity * factor
+        reaction_quantity = int(requirements[0][0][0])
+        total_ore += reaction_quantity * factor
 
         return total_ore, waste
 
@@ -80,7 +46,7 @@ def calculate_requirements_2(reactions, desired_result, desired_quantity, total_
         ingredient_quantity = int(ingredient[0]) * factor
         desired_result = ingredient[1]
 
-        total_ore, waste = calculate_requirements_2(reactions, desired_result, ingredient_quantity, total_ore, waste)
+        total_ore, waste = calculate_requirements(reactions, desired_result, ingredient_quantity, total_ore, waste)
 
     return total_ore, waste
 
@@ -88,14 +54,30 @@ def calculate_requirements_2(reactions, desired_result, desired_quantity, total_
 def part_one():
     reactions = read_input()
 
-    # Find out which reactions require ore.
-    requirements = list(filter(lambda r: r[0][0][1] == 'ORE', reactions))
+    waste = {element[1][1]: 0 for element in reactions}
+
+    return calculate_requirements(reactions, 'FUEL', 1, 0, waste)[0]
+
+
+def part_two():
+    reactions = read_input()
 
     waste = {element[1][1]: 0 for element in reactions}
 
-    # return calculate_requirements('FUEL', 1, reactions, 0, {})[0]
-    return calculate_requirements_2(reactions, 'FUEL', 1, 0, waste)[0]
+    start = 0
+    increment = 10 ** 10
+    while increment >= 1:
+        ore_per_fuel = 0
+        fuel = start
+        while ore_per_fuel <= 10 ** 12:
+            fuel += increment
+            ore_per_fuel = calculate_requirements(reactions, 'FUEL', fuel, 0, waste)[0]
+        start = int(fuel - increment)
+        increment /= 10
+
+    return fuel - 1
 
 
 if __name__ == '__main__':
     print(part_one())
+    print(part_two())
