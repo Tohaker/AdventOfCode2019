@@ -1,2 +1,4 @@
 .idea/
 venv/
+*.pyc
+session_token.txt
