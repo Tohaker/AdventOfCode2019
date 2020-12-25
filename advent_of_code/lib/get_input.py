@@ -13,4 +13,4 @@ cookies = {'session': sessionId}
 def download_input(dayNo):
     input = requests.get(
         f'https://www.adventofcode.com/2019/day/{dayNo}/input', cookies=cookies)
-    return [line.strip() for line in input.text.split('/n')]
+    return list(filter(len, [line.strip() for line in input.text.split('\n')]))
