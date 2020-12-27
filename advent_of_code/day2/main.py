@@ -9,7 +9,7 @@ def part_one(input):
     input[2] = '2'
 
     result = run_computer(input)
-    return result[0]
+    return result[0][0]
 
 
 def part_two(input):
@@ -20,5 +20,5 @@ def part_two(input):
         for j in range(0, 100):
             input[1] = str(i)
             input[2] = str(j)
-            if run_computer(input)[0] == 19690720:
+            if run_computer(input)[0][0] == 19690720:
                 return 100 * i + j

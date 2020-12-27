@@ -3,8 +3,10 @@ from lib.get_input import download_input
 import day1
 import day2
 import day3
+import day4
+import day5
 
-days = [day1, day2, day3]
+days = [day1, day2, day3, day4, day5]
 
 
 def print_day(i):
