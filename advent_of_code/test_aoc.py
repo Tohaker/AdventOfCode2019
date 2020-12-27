@@ -1,6 +1,7 @@
 from lib.get_input import download_input
 import day1
 import day2
+import day3
 
 
 class TestAOCSolutions:
@@ -13,3 +14,8 @@ class TestAOCSolutions:
         input = download_input(2)
         assert day2.part_one(input) == 3850704
         assert day2.part_two(input) == 6718
+
+    def test_day_three(self):
+        input = download_input(3)
+        assert day3.part_one(input) == 651
+        assert day3.part_two(input) == 7534

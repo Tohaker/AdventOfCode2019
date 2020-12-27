@@ -3,7 +3,7 @@ from intcode import run_computer
 
 def part_one(input):
     # Downloaded input is on one line
-    input = list(input[0].split(','))
+    input = input[0].split(',')
 
     input[1] = '12'
     input[2] = '2'
@@ -14,7 +14,7 @@ def part_one(input):
 
 def part_two(input):
     # Downloaded input is on one line
-    input = list(input[0].split(','))
+    input = input[0].split(',')
 
     for i in range(0, 100):
         for j in range(0, 100):
