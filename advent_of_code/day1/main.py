@@ -19,18 +19,8 @@ def calculate_module_fuel(starting_mass):
 
 
 def part_one(input):
-    total = 0
-
-    for mass in input:
-        total += single_module_fuel(mass)
-
-    return total
+    return sum(map(lambda mass: single_module_fuel(mass), input))
 
 
 def part_two(input):
-    total = 0
-
-    for mass in input:
-        total += calculate_module_fuel(mass)
-
-    return total
+    return sum(map(lambda mass: calculate_module_fuel(mass), input))
