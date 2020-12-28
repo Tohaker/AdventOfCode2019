@@ -15,8 +15,9 @@ def get_value(program, position, mode):
         return next_val
 
 
-def run_computer(program, input=0):
-    position = 0
+def run_computer(program, input=[0], initial_position=0, feedback=False,):
+    position = initial_position
+    input_counter = 0
     outputs = []
     program = list(map(int, program))
 
@@ -49,13 +50,18 @@ def run_computer(program, input=0):
             # Location to write to will always be the immediate value
             location = get_value(program, position + 1, Mode.IMMEDIATE)
 
-            program[location] = input
+            program[location] = input[input_counter]
+            input_counter += 1
             position += 2
 
         elif command == 4:
             value = get_value(program, position + 1, params[0])
             outputs.append(value)
             position += 2
+
+            # In a feedback loop we want to preserve our current progress
+            if feedback:
+                return program, outputs, position
 
         elif command == 5:
             to_check = get_value(program, position + 1, params[0])
@@ -103,4 +109,4 @@ def run_computer(program, input=0):
 
             position += 4
 
-    return program, outputs
+    return program, outputs, position
