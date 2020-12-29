@@ -1,0 +1,1 @@
+from day10.main import part_one, part_two
