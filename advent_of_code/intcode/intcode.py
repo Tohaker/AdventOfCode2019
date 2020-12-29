@@ -34,10 +34,12 @@ def run_computer(
     program,
     input=[0],
     initial_position=0,
+    initial_relative_base=0,
     feedback=False,
+    feedback_threshold=1,
 ):
     position = initial_position
-    relative_base = 0
+    relative_base = initial_relative_base
     input_counter = 0
     outputs = []
     program = list(map(int, program))
@@ -90,8 +92,8 @@ def run_computer(
             position += 2
 
             # In a feedback loop we want to preserve our current progress
-            if feedback:
-                return program, outputs, position
+            if feedback and len(outputs) == feedback_threshold:
+                return program, outputs, position, relative_base
 
         elif command == 5:
             to_check = get_value(program, position + 1, relative_base, params[0])
@@ -151,4 +153,4 @@ def run_computer(
             relative_base += base
             position += 2
 
-    return program, outputs, position
+    return program, outputs, position, relative_base

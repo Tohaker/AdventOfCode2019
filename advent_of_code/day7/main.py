@@ -18,14 +18,16 @@ def run_feedback(program, sequence):
     saved_state = list(map(lambda s: copy(program), sequence))
 
     for i, phase in enumerate(sequence):
-        saved_state[i], outputs, saved_position[i] = run_computer(
-            saved_state[i], [phase, next_input], saved_position[i], feedback=True)
+        saved_state[i], outputs, saved_position[i], _ = run_computer(
+            saved_state[i], [phase, next_input], saved_position[i], feedback=True
+        )
         next_input = outputs[0]
 
     while previous_command != 99:
         for i, _ in enumerate(sequence):
-            saved_state[i], outputs, saved_position[i] = run_computer(
-                saved_state[i], [next_input], saved_position[i], feedback=True)
+            saved_state[i], outputs, saved_position[i], _ = run_computer(
+                saved_state[i], [next_input], saved_position[i], feedback=True
+            )
             previous_command = saved_state[i][saved_position[i]]
 
             if len(outputs) == 0:
@@ -37,13 +39,16 @@ def run_feedback(program, sequence):
 
 
 def part_one(input):
-    program = input[0].split(',')
+    program = input[0].split(",")
 
-    return max(map(lambda sequence: run_sequence(program, sequence), list(permutations([0, 1, 2, 3, 4]))))
+    return max(
+        map(lambda sequence: run_sequence(program, sequence), list(permutations([0, 1, 2, 3, 4])))
+    )
 
 
 def part_two(input):
-    program = input[0].split(',')
+    program = input[0].split(",")
 
-    return max(map(lambda sequence: run_feedback(
-        program, sequence), list(permutations([5, 6, 7, 8, 9]))))
+    return max(
+        map(lambda sequence: run_feedback(program, sequence), list(permutations([5, 6, 7, 8, 9])))
+    )
