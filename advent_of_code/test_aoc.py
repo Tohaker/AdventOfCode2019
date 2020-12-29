@@ -7,6 +7,7 @@ import day5
 import day6
 import day7
 import day8
+import day9
 
 
 class TestAOCSolutions:
@@ -56,3 +57,8 @@ class TestAOCSolutions:
             [1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0],
             [0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0],
         ]
+
+    def test_day_nine(self):
+        input = download_input(9)
+        assert day9.part_one(input) == 3100786347
+        assert day9.part_two(input) == 87023
