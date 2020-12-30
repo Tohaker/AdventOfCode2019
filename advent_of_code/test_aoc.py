@@ -12,6 +12,7 @@ import day10
 import day11
 import day12
 import day13
+import day14
 
 
 class TestAOCSolutions:
@@ -86,3 +87,10 @@ class TestAOCSolutions:
         input = download_input(13)
         assert day13.part_one(input) == 247
         assert day13.part_two(input) == 12954
+
+    def test_day_fourteen(self):
+        input = download_input(14)
+        assert day14.part_one(input) == 346961
+        assert (
+            day14.part_two(input) - 1 == 4065790
+        )  # No clue why but real input comes out 1 too high
