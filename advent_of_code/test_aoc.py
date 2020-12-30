@@ -11,6 +11,7 @@ import day9
 import day10
 import day11
 import day12
+import day13
 
 
 class TestAOCSolutions:
@@ -80,3 +81,8 @@ class TestAOCSolutions:
         input = download_input(12)
         assert day12.part_one(input) == 7013
         assert day12.part_two(input) == 324618307124784
+
+    def test_day_thirteen(self):
+        input = download_input(13)
+        assert day13.part_one(input) == 247
+        assert day13.part_two(input) == 12954
