@@ -63,11 +63,10 @@ def part_one(input):
 def part_two(input):
     reactions = parse_input(input)
 
-    waste = {element[1][1]: 0 for element in reactions}
-
     start = 0
     increment = 10 ** 10
     while increment >= 1:
+        waste = {element[1][1]: 0 for element in reactions}
         ore_per_fuel = 0
         fuel = start
         while ore_per_fuel <= 10 ** 12:

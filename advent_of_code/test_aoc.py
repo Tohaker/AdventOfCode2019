@@ -91,6 +91,4 @@ class TestAOCSolutions:
     def test_day_fourteen(self):
         input = download_input(14)
         assert day14.part_one(input) == 346961
-        assert (
-            day14.part_two(input) - 1 == 4065790
-        )  # No clue why but real input comes out 1 too high
+        assert day14.part_two(input) == 4065790
